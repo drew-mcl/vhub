@@ -1,0 +1,35 @@
+xapiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vhub
+  labels:
+    app: vhub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vhub
+  template:
+    metadata:
+      labels:
+        app: vhub
+    spec:
+      containers:
+      - name: vhub
+        image: vhub:latest
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            cpu: "0.5" # Maximum CPU limit for the container
+            memory: "256Mi" # Maximum memory limit for the container
+          requests:
+            cpu: "0.2" # Minimum CPU requirement for the container
+            memory: "128Mi" # Minimum memory requirement for the container
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app
+      volumes:
+      - name: config-volume
+        configMap:
+          name: vhub-config

@@ -1,0 +1,20 @@
+{
+    "environments": [
+      {
+        "name": "prod",
+        "versions": {
+          "app1": 4,
+          "app2": 30
+        }
+      },
+      {
+        "name": "uat",
+        "versions": {}
+      },
+      {
+        "name": "dev",
+        "versions": {}
+      }
+    ]
+  }
+  

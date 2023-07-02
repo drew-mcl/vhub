@@ -1,0 +1,16 @@
+
+test:
+    go test -v ./...
+
+build:
+    go build .
+
+docker:
+    docker build -t whatversion:latest .
+
+configmap:
+    kubectl create configmap whatversion-config --from-file=config.json
+
+deploy:
+    kubectl apply -f deployment.yml
+    kubectl apply -f service.yml
