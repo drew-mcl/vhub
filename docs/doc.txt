@@ -1,0 +1,52 @@
+Title: VHUB Application
+
+1. Introduction
+
+The VHUB application is a backend service written in the Go programming language, designed to manage data related to different regions, environments, and apps in a structured way. The service provides an API over HTTP and persists its data in a JSON file.
+
+2. Purpose
+
+The VHUB application is designed to facilitate the management of regions, environments, and applications, particularly for software deployment pipelines. By managing these entities through a dedicated service, teams can have a centralized, consistent, and programmatic way to interact with this data.
+
+3. Core Concepts
+
+The application manages three key entities:
+
+    - Regions: These could be geographical regions like Americas (amer), Europe, Middle East and Africa (emea), and Asia Pacific (apac).
+    - Environments: Within each region, there could be different environments such as Production, QA, UAT, Development, and Disaster Recovery.
+    - Apps: Each environment can have different applications deployed, each with a name and version number.
+
+The data about these entities is stored in a JSON file which can be defined during application startup.
+
+4. Using the Application
+
+The application exposes several API endpoints to manage these entities. All API routes are prefixed with /api/v1.
+
+To interact with the service, you can send HTTP requests to these endpoints. For example:
+
+    - To get all the data: GET /api/v1/all
+    - To list all regions: GET /api/v1/regions
+    - To create a new region: POST /api/v1/regions/{region}
+    - To list all environments in a region: GET /api/v1/regions/{region}/environments
+    - To create a new environment in a region: POST /api/v1/regions/{region}/environments/{environment}
+    - To list all apps in an environment: GET /api/v1/regions/{region}/environments/{environment}/apps
+    - To create a new app in an environment: POST /api/v1/regions/{region}/environments/{environment}/apps/{app}
+    - To get a specific app: GET /api/v1/regions/{region}/environments/{environment}/apps/{app}
+
+5. Running the Application
+
+To run the application, use the following command:
+
+    go run main.go -host=localhost -port=8080 -filePath=/path/to/your/data.json
+
+Replace /path/to/your/data.json with the path to the JSON file where the application's data will be stored. If the file does not exist, the application will create it and populate it with default values.
+
+6. Integration Tests
+
+Integration tests are included to verify the functioning of the application. To run these tests, ensure your application server is running and execute:
+
+    go test -v ./...
+
+7. Conclusion
+
+The VHUB application provides a robust and simple way to manage regions, environments, and apps. By leveraging HTTP API endpoints, it can easily integrate with existing tools and workflows.

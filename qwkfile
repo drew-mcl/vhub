@@ -1,16 +1,29 @@
-
 test:
     go test -v ./...
 
 build:
     go build .
 
-docker:
-    docker build -t whatversion:latest .
+itest:
+    go run main.go --filePath data.json
+
+dbuild:
+    docker build . -t drewmcl/vhub:latest
+
+dpush:
+    docker push drewmcl/vhub:latest
 
 configmap:
-    kubectl create configmap whatversion-config --from-file=config.json
+    kubectl create configmap vhub-config 
+    !cont --from-file=config.json
 
 deploy:
     kubectl apply -f deployment.yml
     kubectl apply -f service.yml
+
+initgit:
+    git add .
+    git commit -m "init repo"
+    git branch -M main
+    git remote add origin https://github.com/drew-mcl/$1.git
+    git push -u origin main
