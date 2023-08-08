@@ -1,6 +1,10 @@
 package api
 
 import (
+	"fmt"
+	"net/http"
+	"strings"
+
 	"github.com/gorilla/mux"
 )
 
@@ -11,15 +15,34 @@ func NewRouter(filePath string) (*mux.Router, error) {
 		return nil, err
 	}
 
-	router := mux.NewRouter().PathPrefix("/api/v1").Subrouter()
+	router := mux.NewRouter()
 
-	router.HandleFunc("/regions/{region}", CreateRegion).Methods("POST")
-	router.HandleFunc("/regions", ListRegions).Methods("GET")
-	router.HandleFunc("/regions/{region}/environments/{environment}", CreateEnvironment).Methods("POST")
-	router.HandleFunc("/regions/{region}/environments", ListEnvironments).Methods("GET")
-	router.HandleFunc("/regions/{region}/environments/{environment}/apps/{app}", CreateApp).Methods("POST")
-	router.HandleFunc("/regions/{region}/environments/{environment}/apps", ListApps).Methods("GET")
-	router.HandleFunc("/regions/{region}/environments/{environment}/apps/{app}", GetApp).Methods("GET")
+	// Handle the root path separately
+	router.HandleFunc("/", ServeHTML).Methods("GET")
+	router.HandleFunc("/cvs", ServeCSV).Methods("GET")
+
+	apiRouter := router.PathPrefix("/api/v1").Subrouter()
+
+	ListRoutes := func(w http.ResponseWriter, r *http.Request) {
+		router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+			template, err := route.GetPathTemplate()
+			if err == nil {
+				methods, _ := route.GetMethods()
+				fmt.Fprintln(w, "Path:", template)
+				fmt.Fprintln(w, "Methods:", strings.Join(methods, ","))
+			}
+			return nil
+		})
+	}
+
+	apiRouter.HandleFunc("/", ListRoutes).Methods("GET")
+	apiRouter.HandleFunc("/regions/{region}", CreateRegion).Methods("POST")
+	apiRouter.HandleFunc("/regions", ListRegions).Methods("GET")
+	apiRouter.HandleFunc("/regions/{region}/environments/{environment}", CreateEnvironment).Methods("POST")
+	apiRouter.HandleFunc("/regions/{region}/environments", ListEnvironments).Methods("GET")
+	apiRouter.HandleFunc("/regions/{region}/environments/{environment}/apps/{app}", CreateApp).Methods("POST")
+	apiRouter.HandleFunc("/regions/{region}/environments/{environment}/apps", ListApps).Methods("GET")
+	apiRouter.HandleFunc("/regions/{region}/environments/{environment}/apps/{app}", GetApp).Methods("GET")
 
 	return router, nil
 }

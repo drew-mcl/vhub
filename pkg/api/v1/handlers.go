@@ -1,7 +1,9 @@
 package api
 
 import (
+	"encoding/csv"
 	"encoding/json"
+	"html/template"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -38,6 +40,51 @@ func appExists(region, environment, app string) bool {
 	}
 	_, ok := Regions[region][environment].Apps[app]
 	return ok
+}
+
+func ServeHTML(w http.ResponseWriter, r *http.Request) {
+	Mutex.Lock()
+	defer Mutex.Unlock()
+
+	tmpl, err := template.ParseFiles("templates/template.html")
+	if err != nil {
+		handleLogError(w, http.StatusInternalServerError, logrus.Fields{"error": err}, "Failed to parse template")
+		return
+	}
+	if err := tmpl.Execute(w, Regions); err != nil {
+		handleLogError(w, http.StatusInternalServerError, logrus.Fields{"error": err}, "Failed to execute template")
+		return
+	}
+	Log.WithFields(logrus.Fields{}).Debug("Served HTML data")
+}
+
+func ServeCSV(w http.ResponseWriter, r *http.Request) {
+	Mutex.Lock()
+	defer Mutex.Unlock()
+
+	// Prepare CSV data
+	records := [][]string{
+		{"Region", "Environment", "Name", "App Name", "Version"},
+	}
+	for region, environments := range Regions {
+		for env, details := range environments {
+			for _, app := range details.Apps {
+				records = append(records, []string{region, env, details.Name, app.Name, app.Version})
+			}
+		}
+	}
+
+	w.Header().Set("Content-Type", "text/csv")
+	w.Header().Set("Content-Disposition", "attachment;filename=data.csv")
+	writer := csv.NewWriter(w)
+	for _, record := range records {
+		if err := writer.Write(record); err != nil {
+			handleLogError(w, http.StatusInternalServerError, logrus.Fields{"error": err}, "Failed to write CSV")
+			return
+		}
+	}
+	writer.Flush()
+	Log.WithFields(logrus.Fields{}).Debug("Served CSV data")
 }
 
 func ListRegions(w http.ResponseWriter, r *http.Request) {

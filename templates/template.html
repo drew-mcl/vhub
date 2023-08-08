@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>VersionHub - Data Overview</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+	<div class="container">
+		<h1 class="text-center my-4">VersionHub - Application overview</h1>
+		<div class="accordion" id="regionAccordion">
+			{{range $region, $environments := .}}
+			<div class="card">
+				<div class="card-header" id="heading{{$region}}">
+					<h2 class="mb-0">
+						<button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse{{$region}}" aria-expanded="true" aria-controls="collapse{{$region}}">
+							{{$region}}
+						</button>
+					</h2>
+				</div>
+				<div id="collapse{{$region}}" class="collapse" aria-labelledby="heading{{$region}}" data-parent="#regionAccordion">
+					<div class="card-body">
+						<div class="accordion" id="envAccordion{{$region}}">
+							{{range $env, $details := $environments}}
+							<div class="card">
+								<div class="card-header" id="heading{{$region}}{{$env}}">
+									<h3 class="mb-0">
+										<button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse{{$region}}{{$env}}" aria-expanded="false" aria-controls="collapse{{$region}}{{$env}}">
+											{{$env}}
+										</button>
+									</h3>
+								</div>
+								<div id="collapse{{$region}}{{$env}}" class="collapse" aria-labelledby="heading{{$region}}{{$env}}" data-parent="#envAccordion{{$region}}">
+									<div class="card-body">
+										<table class="table">
+											<tr>
+												<th>Name</th>
+												<th>App Name</th>
+												<th>Version</th>
+											</tr>
+											{{range $appName, $app := $details.Apps}}
+											<tr>
+												<td>{{$details.Name}}</td>
+												<td>{{$app.Name}}</td>
+												<td>{{$app.Version}}</td>
+											</tr>
+											{{end}}
+										</table>
+									</div>
+								</div>
+							</div>
+							{{end}}
+						</div>
+					</div>
+				</div>
+			</div>
+			{{end}}
+		</div>
+	</div>
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>
