@@ -17,6 +17,23 @@ import (
 
 var InitData bool
 
+func StartBackupSavingInterval(interval time.Duration) {
+	go func() {
+		for {
+			time.Sleep(interval)
+
+			backupFilePath := api.DataFilePath + ".backup" // Adjust as needed for your naming scheme
+			if err := api.SaveData(backupFilePath); err != nil {
+				api.Log.WithFields(logrus.Fields{
+					"error": err,
+				}).Error("Failed to save backup data at interval")
+			} else {
+				api.Log.Info("Backup data saved successfully at interval")
+			}
+		}
+	}()
+}
+
 func main() {
 	// Command-line flags
 	host := flag.String("host", "localhost", "Define host of the server")
@@ -36,6 +53,9 @@ func main() {
 		Addr:    fmt.Sprintf("%s:%s", *host, *port),
 		Handler: router,
 	}
+
+	// Start the backup saving interval
+	StartBackupSavingInterval(5 * time.Minute)
 
 	// Start the server in a goroutine
 	go func() {

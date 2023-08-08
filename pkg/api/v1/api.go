@@ -43,6 +43,8 @@ func NewRouter(filePath string) (*mux.Router, error) {
 	apiRouter.HandleFunc("/regions/{region}/environments/{environment}/apps/{app}", CreateApp).Methods("POST")
 	apiRouter.HandleFunc("/regions/{region}/environments/{environment}/apps", ListApps).Methods("GET")
 	apiRouter.HandleFunc("/regions/{region}/environments/{environment}/apps/{app}", GetApp).Methods("GET")
+	apiRouter.HandleFunc("/regions/{region}/environments/{environment}/apps/{app}/version", GetAppVersion).Methods("GET")
+	apiRouter.HandleFunc("/regions/{region}/environments/{environment}/apps/{app}/version", UpdateAppVersion).Methods("PUT")
 
 	return router, nil
 }

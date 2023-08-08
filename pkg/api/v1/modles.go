@@ -19,7 +19,7 @@ type App struct {
 }
 
 var Regions = make(map[string]map[string]Environment)
-var Mutex = &sync.Mutex{}
+var Mutex = &sync.RWMutex{}
 var Log = logrus.New()
 var DataFilePath string
 
@@ -38,7 +38,7 @@ func LoadData() error {
 		}
 
 		Log.Info("Created initial regions and environments")
-		if err := SaveData(); err != nil {
+		if err := SaveData(DataFilePath); err != nil {
 			return err
 		}
 		return nil
@@ -65,23 +65,25 @@ func LoadData() error {
 	return nil
 }
 
-func SaveData() error {
+func SaveData(filePath string) error {
 	data, err := json.Marshal(Regions)
 	if err != nil {
 		Log.WithFields(logrus.Fields{
-			"filePath": DataFilePath,
+			"filePath": filePath,
 		}).Error("Failed to serialize data")
 		return err
 	}
 
-	err = os.WriteFile(DataFilePath, data, 0644)
+	err = os.WriteFile(filePath, data, 0644)
 	if err != nil {
 		Log.WithFields(logrus.Fields{
-			"filePath": DataFilePath,
+			"filePath": filePath,
 		}).Error("Failed to write data to file")
 		return err
 	}
 
-	Log.Info("Successfully saved data to file")
+	Log.WithFields(logrus.Fields{
+		"filePath": filePath,
+	}).Debug("Successfully saved data to file")
 	return nil
 }
