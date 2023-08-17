@@ -1,0 +1,7 @@
+{
+	"enableHealthCheck": true,
+	"healthChecks": [
+		{"Region": "amer", "Environment": "dev", "URL": "http://localhost:8234"},
+		{"Region": "amer", "Environment": "qa", "URL": "http://localhost:7495"}
+	]
+}
